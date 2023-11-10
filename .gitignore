@@ -1,0 +1,7 @@
+bin/
+obj/
+*.dll
+.vs/
+*.vsidx
+FileContentIndex/
+logs/
