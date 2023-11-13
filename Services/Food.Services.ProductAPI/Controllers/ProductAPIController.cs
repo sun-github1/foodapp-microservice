@@ -37,8 +37,9 @@ namespace Food.Services.ProductAPI.Controllers
         }
 
         [HttpGet]
-        [Route("{id}:int")]
+        [Route("{id}")]
         public async Task<ResponseDto> Get(int id)
+        
         {
             try
             {
@@ -91,7 +92,7 @@ namespace Food.Services.ProductAPI.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}:int")]
+        [Route("{id}")]
         public async Task<ResponseDto> Delete(int id)
         {
             try

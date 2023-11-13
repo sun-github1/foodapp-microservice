@@ -11,7 +11,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<IProductService, ProductService>();
 StartingDetails.ProductAPIbase = builder.Configuration["ServiceUrls:ProductAPI"];
 builder.Services.AddScoped<IBaseService, BaseService>();
-
+builder.Services.AddScoped<IProductService, ProductService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
