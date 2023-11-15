@@ -48,6 +48,9 @@
                             <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
                         </form>
                     </div>
+                    <div class="card-footer">
+                        <a asp-page="/Account/Create/Index" asp-route-returnUrl="@Model.Input.ReturnUrl">New User? Register</a>
+                    </div>
                 </div>
             </div>
         }

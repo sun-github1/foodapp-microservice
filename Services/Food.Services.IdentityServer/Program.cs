@@ -30,7 +30,7 @@ namespace Food.Services.IdentityServer
                 .AddAspNetIdentity<ApplicationUser>();
             identityServerBuilder.AddDeveloperSigningCredential();
 
-            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+            //builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
             // Add services to the container.
             builder.Services.AddRazorPages();
@@ -52,7 +52,7 @@ namespace Food.Services.IdentityServer
             app.UseIdentityServer();
             app.UseAuthorization();
 
-            DbInitializer.Initialize();
+            app.Initialize();
             app.MapRazorPages();
 
             app.Run();

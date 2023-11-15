@@ -7,6 +7,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme= "Cookies";
+    options.DefaultChallengeScheme = "oidc";
+
+})
+    .AddCookie("Cookies",c=>c.ExpireTimeSpan=TimeSpan.FromMinutes(5))
+    .AddOpenIdConnect("oidc", options => {
+        options.Authority = builder.Configuration["ServiceUrls:IdentityServerAPI"];
+        options.GetClaimsFromUserInfoEndpoint = true;
+        options.ClientId = "food";
+        options.ClientSecret = "secret";
+        options.ResponseType = "code";
+        options.TokenValidationParameters.NameClaimType = "name";
+        options.TokenValidationParameters.RoleClaimType = "role";
+        options.Scope.Add("food");
+        options.SaveTokens = true;
+    });
+
+
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<IProductService, ProductService>();
 StartingDetails.ProductAPIbase = builder.Configuration["ServiceUrls:ProductAPI"];
@@ -26,7 +47,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
