@@ -31,6 +31,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<IProductService, ProductService>();
 StartingDetails.ProductAPIbase = builder.Configuration["ServiceUrls:ProductAPI"];
+StartingDetails.ShoppingCartAPIAPIbase = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
 builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 var app = builder.Build();

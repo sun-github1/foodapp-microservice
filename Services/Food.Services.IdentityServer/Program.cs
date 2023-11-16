@@ -1,6 +1,8 @@
+using Duende.IdentityServer.Services;
 using Food.Services.IdentityServer.Data;
 using Food.Services.IdentityServer.Initializer;
 using Food.Services.IdentityServer.Models;
+using Food.Services.IdentityServer.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,7 +32,7 @@ namespace Food.Services.IdentityServer
                 .AddAspNetIdentity<ApplicationUser>();
             identityServerBuilder.AddDeveloperSigningCredential();
 
-            //builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
 
             // Add services to the container.
             builder.Services.AddRazorPages();
@@ -50,6 +52,7 @@ namespace Food.Services.IdentityServer
 
             app.UseRouting();
             app.UseIdentityServer();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.Initialize();

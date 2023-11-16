@@ -3,7 +3,7 @@
     public static class StartingDetails
     {
         public static string ProductAPIbase { get; set; }
-
+        public static string ShoppingCartAPIAPIbase { get; set; }
         public enum ApiType
         {
             GET,

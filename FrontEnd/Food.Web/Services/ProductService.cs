@@ -10,57 +10,57 @@ namespace Food.Web.Services
         {
             _httpClientFactory = httpClientFactory;   
         }
-        public async Task<ResponseDto> CreateProductsAsync(ProductDto productDto)
+        public async Task<T> CreateProductsAsync<T>(ProductDto productDto, string token)
         {
-            return await this.SendAsync(new RequestDto()
+            return await this.SendAsync<T>(new RequestDto()
             {
                 ApiType = StartingDetails.ApiType.POST,
                 Data = productDto,
                 Url=StartingDetails.ProductAPIbase + "/api/product",
                 ContentType = StartingDetails.ContentType.MultipartFormData,
-                AccessToken=""
+                AccessToken= token
             });
         }
 
-        public async Task<ResponseDto> DeleteProductsAsync(int id)
+        public async Task<T> DeleteProductsAsync<T>(int id, string token)
         {
-            return await this.SendAsync(new RequestDto()
+            return await this.SendAsync<T>(new RequestDto()
             {
                 ApiType = StartingDetails.ApiType.DELETE,
                 Url = StartingDetails.ProductAPIbase + "/api/product/"+id,
-                AccessToken = ""
+                AccessToken = token
             });
         }
 
-        public async Task<ResponseDto> GetAllProductsAsync()
+        public async Task<T> GetAllProductsAsync<T>(string token)
         {
-            return await this.SendAsync(new RequestDto()
+            return await this.SendAsync<T>(new RequestDto()
             {
                 ApiType = StartingDetails.ApiType.GET,
                 Url = StartingDetails.ProductAPIbase + "/api/product",
-                AccessToken = ""
+                AccessToken = token
             });
         }
 
-        public async Task<ResponseDto> GetProductByIdAsync(int id)
+        public async Task<T> GetProductByIdAsync<T>(int id, string token)
         {
-            return await this.SendAsync(new RequestDto()
+            return await this.SendAsync<T>(new RequestDto()
             {
                 ApiType = StartingDetails.ApiType.GET,
                 Url = StartingDetails.ProductAPIbase + "/api/product/" + id,
-                AccessToken = ""
+                AccessToken = token
             });
         }
 
-        public async Task<ResponseDto> UpdateProductsAsync(ProductDto productDto)
+        public async Task<T> UpdateProductsAsync<T>(ProductDto productDto, string token)
         {
-            return await this.SendAsync(new RequestDto()
+            return await this.SendAsync<T>(new RequestDto()
             {
                 ApiType = StartingDetails.ApiType.PUT,
                 Data = productDto,
                 Url = StartingDetails.ProductAPIbase + "/api/product",
                 ContentType = StartingDetails.ContentType.MultipartFormData,
-                AccessToken = ""
+                AccessToken = token
             });
         }
     }

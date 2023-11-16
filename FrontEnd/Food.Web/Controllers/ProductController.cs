@@ -1,5 +1,7 @@
 ﻿using Food.Web.Models;
 using Food.Web.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -15,10 +17,12 @@ namespace Food.Web.Controllers
         public async Task<ActionResult> ProductIndex()
         {
             List<ProductDto> products = new();
-            var result = await _productService.GetAllProductsAsync();
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var result = await _productService.GetAllProductsAsync<ResponseDto>(accessToken);
             if (result?.IsSuccess == true)
             {
-                products = JsonConvert.DeserializeObject<List<ProductDto>>(result.Result.ToString());
+                products = JsonConvert.DeserializeObject<List<ProductDto>>
+                    (result.Result.ToString());
             }
             else
             {
@@ -30,7 +34,9 @@ namespace Food.Web.Controllers
         public async Task<ActionResult> ProductEdit(int productId)
         {
             ProductDto product = new();
-            var result = await _productService.GetProductByIdAsync(productId);
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var result = await _productService.GetProductByIdAsync<ResponseDto>
+                (productId, accessToken);
             if (result?.IsSuccess == true)
             {
                 product = JsonConvert.DeserializeObject<ProductDto>(result.Result.ToString());
@@ -48,7 +54,9 @@ namespace Food.Web.Controllers
             if (ModelState.IsValid)
             {
                 ProductDto product = new();
-                var result = await _productService.UpdateProductsAsync(productDto);
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var result = await _productService.UpdateProductsAsync<ResponseDto>
+                    (productDto, accessToken);
                 if (result?.IsSuccess == true)
                 {
                     TempData["success"] = "Product updated successfully";
@@ -73,7 +81,9 @@ namespace Food.Web.Controllers
             if (ModelState.IsValid)
             {
                 ProductDto product = new();
-                var result = await _productService.CreateProductsAsync(productDto);
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var result = await _productService.CreateProductsAsync
+                    <ResponseDto>(productDto, accessToken);
                 if (result?.IsSuccess == true)
                 {
                     TempData["success"] = "Product created successfully";
@@ -87,9 +97,11 @@ namespace Food.Web.Controllers
             return View(productDto);
         }
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ProductDelete(int productId)
         {
-            ResponseDto? response = await _productService.GetProductByIdAsync(productId);
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            ResponseDto? response = await _productService.GetProductByIdAsync<ResponseDto>(productId, accessToken);
 
             if (response != null && response.IsSuccess)
             {
@@ -104,10 +116,12 @@ namespace Food.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProductDelete(ProductDto productDto)
         {
-            ResponseDto? response = await _productService.DeleteProductsAsync(productDto.ProductId);
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            ResponseDto? response = await _productService.DeleteProductsAsync<ResponseDto>(productDto.ProductId, accessToken);
 
             if (response != null && response.IsSuccess)
             {
@@ -118,7 +132,7 @@ namespace Food.Web.Controllers
             {
                 TempData["error"] = response?.Message;
             }
-            return NotFound();
+            return View(productDto);
         }
     }
 }

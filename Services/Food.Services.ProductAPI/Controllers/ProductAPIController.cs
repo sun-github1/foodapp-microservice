@@ -20,7 +20,7 @@ namespace Food.Services.ProductAPI.Controllers
             this._responseDto = new ResponseDto();
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         public async Task<ResponseDto> Get()
         {
@@ -37,7 +37,7 @@ namespace Food.Services.ProductAPI.Controllers
             }
             return _responseDto;
         }
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         [Route("{id}")]
         public async Task<ResponseDto> Get(int id)

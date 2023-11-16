@@ -2,6 +2,7 @@
 using Food.Web.Services.Interfaces;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json.Serialization;
 using static Food.Web.StartingDetails;
@@ -11,11 +12,13 @@ namespace Food.Web.Services
     public class BaseService : IBaseService
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private ResponseDto apiResponseDto { get; set; }
         public BaseService(IHttpClientFactory httpClientFactory)
         {
-            _httpClientFactory = httpClientFactory;   
+            _httpClientFactory = httpClientFactory;
+            apiResponseDto =new ResponseDto();
         }
-        public async Task<ResponseDto?> SendAsync(RequestDto requestDto, bool withBearer = true)
+        public async Task<T> SendAsync<T>(RequestDto requestDto, bool withBearer = true)
         {
             try
             {
@@ -29,6 +32,12 @@ namespace Food.Web.Services
                     message.Content = new StringContent(
                         JsonConvert.SerializeObject(requestDto.Data),
                         Encoding.UTF8, "application/json");
+                }
+
+                if(!string.IsNullOrEmpty(requestDto?.AccessToken))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                        requestDto.AccessToken);
                 }
 
                 HttpResponseMessage response = null;
@@ -51,18 +60,27 @@ namespace Food.Web.Services
                 switch (response.StatusCode)
                 {
                     case HttpStatusCode.NotFound:
-                        return new() { IsSuccess = false, Message = "Not Found" };
+                        apiResponseDto.IsSuccess = false;
+                        apiResponseDto.Message = "Not Found";
+                        break;
                     case HttpStatusCode.Forbidden:
-                        return new() { IsSuccess = false, Message = "Access Denied" };
+                        apiResponseDto.IsSuccess = false;
+                        apiResponseDto.Message = "Access Denied";
+                        break;
                     case HttpStatusCode.Unauthorized:
-                        return new() { IsSuccess = false, Message = "Unauthorized" };
+                        apiResponseDto.IsSuccess = false;
+                        apiResponseDto.Message = "Unauthorized";
+                        break;
                     case HttpStatusCode.InternalServerError:
-                        return new() { IsSuccess = false, Message = "Internal Server Error" };
+                        apiResponseDto.IsSuccess = false;
+                        apiResponseDto.Message = "Internal Server Error";
+                        break;
                     default:
                         var apiContent = await response.Content.ReadAsStringAsync();
-                        var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
-                        return apiResponseDto;
+                        return JsonConvert.DeserializeObject<T>(apiContent);
+                        //return apiResponseDto;
                 }
+                return (T)((object)apiResponseDto);
             }
             catch (Exception ex)
             {
@@ -71,7 +89,7 @@ namespace Food.Web.Services
                     Message = ex.Message.ToString(),
                     IsSuccess = false
                 };
-                return dto;
+                return (T)((object)dto);
             }
         }
     }
