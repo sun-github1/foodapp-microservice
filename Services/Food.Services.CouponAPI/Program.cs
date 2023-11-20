@@ -1,11 +1,11 @@
 
 using AutoMapper;
-using Food.Services.ShoppingCartAPI.Data;
-using Food.Services.ShoppingCartAPI.Repository;
+using Food.Services.CouponAPI.Data;
+using Food.Services.CouponAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
-namespace Food.Services.ShoppingCartAPI
+namespace Food.Services.CouponAPI
 {
     public class Program
     {
@@ -14,15 +14,21 @@ namespace Food.Services.ShoppingCartAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            builder.Services.AddControllers();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"))
-            );
+               options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"))
+           );
 
             IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
             builder.Services.AddSingleton(mapper);
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
+            builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 
             builder.Services.AddControllers().AddJsonOptions(options =>
             {
@@ -52,7 +58,7 @@ namespace Food.Services.ShoppingCartAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Food.Services.ShoppingCartAPI", Version = "v1" });
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Food.Services.CouponAPI", Version = "v1" });
                 c.EnableAnnotations();
                 c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
@@ -76,7 +82,7 @@ namespace Food.Services.ShoppingCartAPI
                         new List<string>()
                         }
                     });
-                });
+            });
 
             var app = builder.Build();
 
@@ -86,13 +92,10 @@ namespace Food.Services.ShoppingCartAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapControllers();
-
             app.Run();
         }
     }

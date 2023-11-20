@@ -59,6 +59,10 @@ namespace Food.Web.Services
                 response = await client.SendAsync(message);
                 switch (response.StatusCode)
                 {
+                    case HttpStatusCode.BadRequest:
+                        apiResponseDto.IsSuccess = false;
+                        apiResponseDto.Message = "Bad Request";
+                        break;
                     case HttpStatusCode.NotFound:
                         apiResponseDto.IsSuccess = false;
                         apiResponseDto.Message = "Not Found";

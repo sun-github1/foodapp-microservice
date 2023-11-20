@@ -1,6 +1,7 @@
 using Food.Web.Services.Interfaces;
 using Food.Web.Services;
 using Food.Web;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,8 @@ builder.Services.AddAuthentication(options =>
         options.ClientId = "food";
         options.ClientSecret = "secret";
         options.ResponseType = "code";
+        options.ClaimActions.MapJsonKey("role", "role", "role");
+        options.ClaimActions.MapJsonKey("sub", "sub", "sub");
         options.TokenValidationParameters.NameClaimType = "name";
         options.TokenValidationParameters.RoleClaimType = "role";
         options.Scope.Add("food");
@@ -30,10 +33,13 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<IProductService, ProductService>();
+builder.Services.AddHttpClient<ICartService, CartService>();
 StartingDetails.ProductAPIbase = builder.Configuration["ServiceUrls:ProductAPI"];
 StartingDetails.ShoppingCartAPIAPIbase = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
+StartingDetails.CouponAPIAPIbase = builder.Configuration["ServiceUrls:CouponAPI"];
 builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -25,9 +25,7 @@ namespace Food.Web.Services
             return await this.SendAsync<T>(new RequestDto()
             {
                 ApiType = StartingDetails.ApiType.GET,
-                Data = userId,
-                Url = StartingDetails.ShoppingCartAPIAPIbase + "/api/cart/GetCart",
-                ContentType = StartingDetails.ContentType.MultipartFormData,
+                Url = StartingDetails.ShoppingCartAPIAPIbase + "/api/cart/getcart/"+userId,
                 AccessToken = token
             });
         }

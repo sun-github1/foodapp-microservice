@@ -4,6 +4,7 @@
     {
         public static string ProductAPIbase { get; set; }
         public static string ShoppingCartAPIAPIbase { get; set; }
+        public static string CouponAPIAPIbase { get; set; }
         public enum ApiType
         {
             GET,

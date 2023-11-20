@@ -17,6 +17,7 @@ namespace Food.Services.ShoppingCartAPI.Controllers
         {
             _logger = logger;
             _cartRepository= cartRepository;
+            _responseDto=new ResponseDto();
         }
 
         [HttpGet("GetCart/{userId}")]
@@ -24,7 +25,7 @@ namespace Food.Services.ShoppingCartAPI.Controllers
         {
             try
             {
-                var cartDto =_cartRepository.GetCartbyUserId(userId);
+                var cartDto = await _cartRepository.GetCartbyUserId(userId);
                 _responseDto.Result=cartDto;
             }
             catch (Exception ex)
@@ -39,20 +40,20 @@ namespace Food.Services.ShoppingCartAPI.Controllers
         [HttpPost("AddCart")]
         public async Task<ResponseDto> AddCart(CartDto cartDto)
         {
-            return AddUpdateCart(cartDto);
+            return await  AddUpdateCart(cartDto);
         }
 
         [HttpPost("UpdateCart")]
         public async Task<ResponseDto> UpdateCart(CartDto cartDto)
         {
-            return AddUpdateCart(cartDto);
+            return await AddUpdateCart(cartDto);
         }
 
-        private ResponseDto AddUpdateCart(CartDto cartDto)
+        private async Task<ResponseDto> AddUpdateCart(CartDto cartDto)
         {
             try
             {
-                var result = _cartRepository.CreateUpdateCart(cartDto);
+                var result = await _cartRepository.CreateUpdateCart(cartDto);
                 _responseDto.Result = result;
             }
             catch (Exception ex)
@@ -69,7 +70,7 @@ namespace Food.Services.ShoppingCartAPI.Controllers
         {
             try
             {
-                var success = _cartRepository.RemoveFromCart(cartId);
+                var success = await _cartRepository.RemoveFromCart(cartId);
                 _responseDto.Result = success;
             }
             catch (Exception ex)
