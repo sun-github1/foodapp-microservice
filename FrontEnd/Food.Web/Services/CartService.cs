@@ -29,6 +29,7 @@ namespace Food.Web.Services
                 AccessToken = token
             });
         }
+       
 
         public async Task<T> RemoveFromCartAsync<T>(int cartId, string token = null)
         {
@@ -50,6 +51,27 @@ namespace Food.Web.Services
                 Data = cartDto,
                 Url = StartingDetails.ShoppingCartAPIAPIbase + "/api/cart/UpdateCart",
                 ContentType = StartingDetails.ContentType.MultipartFormData,
+                AccessToken = token
+            });
+        }
+        public async Task<T> ApplyCoupon<T>(CartDto cartDto, string token = null)
+        {
+            return await this.SendAsync<T>(new RequestDto()
+            {
+                ApiType = StartingDetails.ApiType.POST,
+                Data = cartDto,
+                Url = StartingDetails.ShoppingCartAPIAPIbase + "/api/cart/applycoupon",
+                ContentType = StartingDetails.ContentType.MultipartFormData,
+                AccessToken = token
+            });
+        }
+        public async Task<T> RemoveCoupon<T>(string userId, string token = null)
+        {
+            return await this.SendAsync<T>(new RequestDto()
+            {
+                ApiType = StartingDetails.ApiType.POST,
+                Data = userId,
+                Url = StartingDetails.ShoppingCartAPIAPIbase + "/api/cart/RemoveCoupon",
                 AccessToken = token
             });
         }

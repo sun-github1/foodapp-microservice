@@ -7,6 +7,8 @@
         <br />
         <input asp-for="Header.UserId" hidden />
         <input asp-for="Header.CartHeaderId" hidden />
+        @* <input asp-for="Header.CouponCode" hidden /> *@
+        <input asp-for="CartDetails" hidden />
         <div class="">
             <div class="card border mt-4 container">
                 <div class="card-header bg-dark text-light ml-0 row ">
@@ -73,18 +75,18 @@
                             else
                             {
                                 <span>Coupon:</span>
-                                <input asp-for="Header.CouponCode" disabled />
+                                <input asp-for="Header.CouponCode" />
                                 <button type="submit" asp-action="RemoveCoupon" class="btn-danger"> Remove </button>
                             }
 
                         </div>
                         <div class="col-6 text-end">
                             <span class="text-danger" style="font-size:21px;">  Order Total : @string.Format("{0:c}", Model.Header.OrderTotal) <br /></span>
-                            @* @if (Model.Header.DiscountTotal > 0)
+                            @if (Model.Header.DiscountTotal > 0)
                             {
                                 <span class="text-success"> Order Discount :  @string.Format("{0:c}", Model.Header.DiscountTotal)</span>
 
-                            } *@
+                            }
                         </div>
                     </div>
                 </div>

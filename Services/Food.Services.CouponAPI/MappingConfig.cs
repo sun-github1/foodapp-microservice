@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Food.Services.CouponAPI.Dtos;
+using Food.Services.CouponAPI.Models;
 
 namespace Food.Services.CouponAPI
 {
@@ -8,10 +10,7 @@ namespace Food.Services.CouponAPI
         {
             var mappingConfig = new MapperConfiguration(config =>
             {
-                //config.CreateMap<ProductDto, Product>().ReverseMap();
-                //config.CreateMap<CartDto, Cart>().ReverseMap();
-                //config.CreateMap<CartDetailDto, CartDetail>().ReverseMap();
-                //config.CreateMap<CartHeaderDto, CartHeader>().ReverseMap();
+                config.CreateMap<CouponDto, Coupon>().ReverseMap();
             });
             return mappingConfig;
         }

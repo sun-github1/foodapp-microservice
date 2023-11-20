@@ -15,17 +15,21 @@ namespace Food.Web.Controllers
         private readonly IProductService _productService;
         private readonly ICartService _cartService;
         private readonly ILogger<CartController> _logger;
+        private readonly ICouponService _couponService;
 
         public CartController(ILogger<CartController> logger,
             ICartService cartService,
-            IProductService productService)
+            IProductService productService,
+            ICouponService couponService)
         {
             _logger = logger;
             _productService = productService;
             _cartService = cartService;
+            _couponService = couponService;
         }
 
         [Authorize]
+        [HttpGet]
         public async Task<ActionResult> CartIndex()
         {
             return View(await LoadCartDtoBasedOnLoggedInUser());
@@ -45,16 +49,29 @@ namespace Food.Web.Controllers
 
             if(cartDto.Header!=null)
             {
+                if(!string.IsNullOrEmpty(cartDto.Header.CouponCode))
+                {
+                    var couponResult = await _couponService.GetCoupon<ResponseDto>(cartDto.Header.CouponCode, 
+                        accessToken);
+                    if (couponResult?.IsSuccess == true)
+                    {
+                        var coupon = JsonConvert.DeserializeObject<CouponDto>(couponResult.Result?.ToString());
+                        cartDto.Header.DiscountTotal = coupon.DiscountAmount;
+                        //cartDto.Header.CouponCode = coupon.CouponCode;
+                    }
+                }
+
                 foreach(var item in cartDto.CartDetails)
                 {
                     cartDto.Header.OrderTotal += (item.Product.Price * item.Count);
                 }
+                cartDto.Header.OrderTotal = cartDto.Header.OrderTotal - cartDto.Header.DiscountTotal;
             }
 
             return cartDto;
         }
         [HttpGet("Remove")]
-        public async Task<ActionResult> Remove(int cartDetailsId)
+        public async Task<IActionResult> Remove(int cartDetailsId)
         {
             //string userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
             var accessToken = await HttpContext.GetTokenAsync("access_token");
@@ -67,5 +84,60 @@ namespace Food.Web.Controllers
 
         }
 
+        [HttpPost]
+        //[ActionName("ApplyCoupon")]
+        public async Task<IActionResult> ApplyCoupon([FromForm] CartDto cartDto)
+        {
+            //string userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var response = await _cartService.ApplyCoupon<ResponseDto>(cartDto, accessToken);
+            if (response?.IsSuccess == true)
+            {
+                return RedirectToAction(nameof(CartIndex));
+            }
+            return View();
+
+        }
+        [HttpPost("RemoveCoupon")]
+        //[ActionName("RemoveCoupon")]
+        public async Task<IActionResult> RemoveCoupon([FromForm]CartDto cartDto)
+        {
+            //string userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var response = await _cartService.RemoveCoupon<ResponseDto>(cartDto.Header.UserId, accessToken);
+            if (response?.IsSuccess == true)
+            {
+                return RedirectToAction(nameof(CartIndex));
+            }
+            return View();
+
+        }
+
+        [Authorize]
+        [HttpGet("CheckOut")]
+        public async Task<ActionResult> CheckOut()
+        {
+            return View(await LoadCartDtoBasedOnLoggedInUser());
+        }
+
+        [HttpPost("Checkout")]
+        public async Task<IActionResult> Checkout(CartDto cartDto)
+        {
+            //try
+            //{
+            //    var accessToken = await HttpContext.GetTokenAsync("access_token");
+            //    var response = await _cartService.Checkout<ResponseDto>(cartDto.CartHeader, accessToken);
+            //    if (!response.IsSuccess)
+            //    {
+            //        TempData["Error"] = response.DisplayMessage;
+            //        return RedirectToAction(nameof(Checkout));
+            //    }
+            //    return RedirectToAction(nameof(Confirmation));
+            //}
+            //catch (Exception e)
+            //{
+                return View(cartDto);
+            //}
+        }
     }
 }
