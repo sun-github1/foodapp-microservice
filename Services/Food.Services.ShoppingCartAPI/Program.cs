@@ -24,7 +24,9 @@ namespace Food.Services.ShoppingCartAPI
 
             builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
 
-            builder.Services.AddControllers().AddJsonOptions(options =>
+            builder.Services.AddControllers(
+                options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true
+                ).AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.IgnoreNullValues = true;
             });
@@ -76,7 +78,7 @@ namespace Food.Services.ShoppingCartAPI
                         new List<string>()
                         }
                     });
-                });
+            });
 
             var app = builder.Build();
 

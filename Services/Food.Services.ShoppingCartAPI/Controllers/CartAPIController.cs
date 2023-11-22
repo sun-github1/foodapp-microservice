@@ -1,4 +1,6 @@
-﻿using Food.Services.ShoppingCartAPI.Dtos;
+﻿using Azure;
+using Food.Services.ShoppingCartAPI.Dtos;
+using Food.Services.ShoppingCartAPI.Messages;
 using Food.Services.ShoppingCartAPI.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -117,5 +119,43 @@ namespace Food.Services.ShoppingCartAPI.Controllers
             return _responseDto;
         }
 
+        [HttpPost("Checkout")]
+        public async Task<object> Checkout([FromBody]CheckoutHeaderDto checkoutHeader)
+        {
+            try
+            {
+                CartDto cartDto = await _cartRepository.GetCartbyUserId(checkoutHeader.UserId);
+                if (cartDto == null)
+                {
+                    return BadRequest();
+                }
+
+                //if (!string.IsNullOrEmpty(checkoutHeader.CouponCode))
+                //{
+                //    CouponDto coupon = await _couponRepository.GetCoupon(checkoutHeader.CouponCode);
+                //    if (checkoutHeader.DiscountTotal != coupon.DiscountAmount)
+                //    {
+                //        _response.IsSuccess = false;
+                //        _response.ErrorMessages = new List<string>() { "Coupon Price has changed, please confirm" };
+                //        _response.DisplayMessage = "Coupon Price has changed, please confirm";
+                //        return _response;
+                //    }
+                //}
+
+                checkoutHeader.CartDetails = cartDto.CartDetails;
+                //logic to add message to process order.
+                //await _messageBus.PublishMessage(checkoutHeader, "checkoutqueue");
+
+                ////rabbitMQ
+                //_rabbitMQCartMessageSender.SendMessage(checkoutHeader, "checkoutqueue");
+                await _cartRepository.ClearCart(checkoutHeader.UserId);
+            }
+            catch (Exception ex)
+            {
+                _responseDto.IsSuccess = false;
+                _responseDto.ErrorMessages = new List<string>() { ex.ToString() };
+            }
+            return _responseDto;
+        }
     }
 }

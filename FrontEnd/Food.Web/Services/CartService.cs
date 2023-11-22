@@ -75,5 +75,17 @@ namespace Food.Web.Services
                 AccessToken = token
             });
         }
+
+        public async Task<T> Checkout<T>(CartHeaderDto cartHeader, string token = null)
+        {
+            return await this.SendAsync<T>(new RequestDto()
+            {
+                ApiType = StartingDetails.ApiType.POST,
+                Data = cartHeader,
+                Url = StartingDetails.ShoppingCartAPIAPIbase + "/api/cart/checkout",
+                ContentType = StartingDetails.ContentType.MultipartFormData,
+                AccessToken = token
+            });
+        }
     }
 }
