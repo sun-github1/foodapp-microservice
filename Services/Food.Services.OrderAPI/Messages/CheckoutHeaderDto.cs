@@ -1,9 +1,11 @@
-﻿using Food.MessageBus;
-using Food.Services.ShoppingCartAPI.Dtos;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Food.Services.ShoppingCartAPI.Messages
+namespace Food.Services.OrderAPI.Messages
 {
-    public class CheckoutHeaderDto: BaseMessage
+    public class CheckoutHeaderDto 
     {
         public int CartHeaderId { get; set; }
         public string UserId { get; set; }
@@ -19,6 +21,6 @@ namespace Food.Services.ShoppingCartAPI.Messages
         public string CVV { get; set; }
         public string ExpiryMonthYear { get; set; }
         public int CartTotalItems { get; set; }
-        public IEnumerable<CartDetailDto> CartDetails { get; set; }
+        public IEnumerable<CartDetailsDto> CartDetails { get; set; }
     }
 }

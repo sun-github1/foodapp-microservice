@@ -1,13 +1,14 @@
 
 using AutoMapper;
-using Food.MessageBus;
-using Food.Services.ShoppingCartAPI.Data;
-using Food.Services.ShoppingCartAPI.Repository;
+using Food.Services.OrderAPI.Data;
+using Food.Services.OrderAPI.Extensions;
+using Food.Services.OrderAPI.Messaging;
+using Food.Services.OrderAPI.Repository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
-namespace Food.Services.ShoppingCartAPI
+namespace Food.Services.OrderAPI
 {
     public class Program
     {
@@ -16,20 +17,28 @@ namespace Food.Services.ShoppingCartAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddControllers(options =>
+   options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"))
-            );
+               options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"))
+           );
 
             IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
             builder.Services.AddSingleton(mapper);
-            builder.Services.AddSingleton<IMessageBus, AzureServiceBusMessageBus>();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
-            builder.Services.AddScoped<ICouponRepository, CouponRepository>();
-            builder.Services.AddControllers(
-                options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true
-                ).AddJsonOptions(options =>
+            //builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+            var optionBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+            optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"));
+            builder.Services.AddSingleton(new OrderRepository(optionBuilder.Options));
+            builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
+
+            builder.Services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.IgnoreNullValues = true;
             });
@@ -57,7 +66,7 @@ namespace Food.Services.ShoppingCartAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Food.Services.ShoppingCartAPI", Version = "v1" });
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Food.Services.OrderAPI", Version = "v1" });
                 c.EnableAnnotations();
                 c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
@@ -82,10 +91,6 @@ namespace Food.Services.ShoppingCartAPI
                         }
                     });
             });
-            builder.Services.AddHttpClient();
-            builder.Services.AddHttpClient<ICouponRepository, CouponRepository>(u=>u.BaseAddress= 
-                new Uri(builder.Configuration["ServiceUrls:CouponAPI"]));
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -99,7 +104,9 @@ namespace Food.Services.ShoppingCartAPI
             app.UseAuthentication();
             app.UseAuthorization();
 
+
             app.MapControllers();
+            app.UseAzureServiceBusConsumer();
 
             app.Run();
         }

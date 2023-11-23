@@ -139,7 +139,7 @@ namespace Food.Web.Controllers
                 return View(cartDto);
             }
         }
-
+        [HttpGet("Confirmation")]
         public async Task<ActionResult> Confirmation()
         {
             return View();

@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Food.MessageBus;
 using Food.Services.ShoppingCartAPI.Dtos;
 using Food.Services.ShoppingCartAPI.Messages;
 using Food.Services.ShoppingCartAPI.Repository;
@@ -12,14 +13,20 @@ namespace Food.Services.ShoppingCartAPI.Controllers
     public class CartAPIController : ControllerBase
     {
         public readonly IShoppingCartRepository _cartRepository;
+        public readonly ICouponRepository _couponRepository;
         private ResponseDto _responseDto;
         private readonly ILogger<CartAPIController> _logger;
+        private readonly IMessageBus _messageBus;
         public CartAPIController(ILogger<CartAPIController> logger,
-            IShoppingCartRepository cartRepository)
+            IShoppingCartRepository cartRepository,
+            IMessageBus messageBus,
+            ICouponRepository couponRepository)
         {
             _logger = logger;
-            _cartRepository= cartRepository;
-            _responseDto=new ResponseDto();
+            _cartRepository = cartRepository;
+            _responseDto = new ResponseDto();
+            _messageBus = messageBus;
+            _couponRepository = couponRepository;
         }
 
         [HttpGet("GetCart/{userId}")]
@@ -130,21 +137,21 @@ namespace Food.Services.ShoppingCartAPI.Controllers
                     return BadRequest();
                 }
 
-                //if (!string.IsNullOrEmpty(checkoutHeader.CouponCode))
-                //{
-                //    CouponDto coupon = await _couponRepository.GetCoupon(checkoutHeader.CouponCode);
-                //    if (checkoutHeader.DiscountTotal != coupon.DiscountAmount)
-                //    {
-                //        _response.IsSuccess = false;
-                //        _response.ErrorMessages = new List<string>() { "Coupon Price has changed, please confirm" };
-                //        _response.DisplayMessage = "Coupon Price has changed, please confirm";
-                //        return _response;
-                //    }
-                //}
+                if (!string.IsNullOrEmpty(checkoutHeader.CouponCode))
+                {
+                    CouponDto coupon = await _couponRepository.GetCoupon(checkoutHeader.CouponCode);
+                    if (checkoutHeader.DiscountTotal != coupon.DiscountAmount)
+                    {
+                        _responseDto.IsSuccess = false;
+                        _responseDto.ErrorMessages = new List<string>() { "Coupon Price has changed, please confirm" };
+                        _responseDto.Message = "Coupon Price has changed, please confirm";
+                        return _responseDto;
+                    }
+                }
 
                 checkoutHeader.CartDetails = cartDto.CartDetails;
                 //logic to add message to process order.
-                //await _messageBus.PublishMessage(checkoutHeader, "checkoutqueue");
+                await _messageBus.PublishMessage(checkoutHeader, "checkoutmessagetopic");
 
                 ////rabbitMQ
                 //_rabbitMQCartMessageSender.SendMessage(checkoutHeader, "checkoutqueue");
