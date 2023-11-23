@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Food.MessageBus;
 using Food.Services.OrderAPI.Messages;
 using Food.Services.OrderAPI.Models;
 using Food.Services.OrderAPI.Repository;
@@ -9,30 +10,36 @@ using System.Text;
 
 namespace Food.Services.OrderAPI.Messaging
 {
-    public class AzureServiceBusConsumer: IAzureServiceBusConsumer
+    public class AzureServiceBusConsumer : IAzureServiceBusConsumer
     {
         private readonly AutoMapper.IMapper _mapper;
         private readonly OrderRepository _orderRepository;
         private readonly string serviceBusConnectionString;
         private readonly string subscriptionCheckOut;
         private readonly string checkoutMessageTopic;
+        //private readonly string subscriptionOrderPayment;
+        private readonly string orderPaymentMessageTopic;
         private readonly IConfiguration _configuration;
 
         private ServiceBusProcessor checkOutProcessor;
         private readonly ILogger<AzureServiceBusConsumer> _logger;
-        public AzureServiceBusConsumer(ILogger<AzureServiceBusConsumer> logger, AutoMapper.IMapper mapper, OrderRepository orderRepository, 
-            IConfiguration configuration)
+        private readonly IMessageBus _messageBus;
+        public AzureServiceBusConsumer(ILogger<AzureServiceBusConsumer> logger, AutoMapper.IMapper mapper, OrderRepository orderRepository,
+            IConfiguration configuration, IMessageBus messageBus)
         {
-            _mapper= mapper;
-            _orderRepository= orderRepository;
-            _configuration= configuration;
-            _logger= logger;
+            _mapper = mapper;
+            _orderRepository = orderRepository;
+            _configuration = configuration;
+            _logger = logger;
+            _messageBus = messageBus;
             serviceBusConnectionString = _configuration.GetValue<string>("ServiceBusConnectionString");
             checkoutMessageTopic = _configuration.GetValue<string>("CheckoutMessageTopic");
             subscriptionCheckOut = _configuration.GetValue<string>("SubscriptionCheckout");
+            orderPaymentMessageTopic = _configuration.GetValue<string>("OrderPaymentMessageTopic");
+            //subscriptionOrderPayment = _configuration.GetValue<string>("SubscriptionOrderPayment");
 
-            var client= new ServiceBusClient(serviceBusConnectionString);
-            checkOutProcessor=client.CreateProcessor(checkoutMessageTopic, subscriptionCheckOut);
+            var client = new ServiceBusClient(serviceBusConnectionString);
+            checkOutProcessor = client.CreateProcessor(checkoutMessageTopic, subscriptionCheckOut);
         }
 
         public async Task Start()
@@ -55,12 +62,12 @@ namespace Food.Services.OrderAPI.Messaging
 
         private async Task OnCheckOutMessageReceived(ProcessMessageEventArgs args)
         {
-            var message= args.Message;
+            var message = args.Message;
             var body = Encoding.UTF8.GetString(message.Body);
 
             CheckoutHeaderDto checkoutHeaderDto = JsonConvert.DeserializeObject<CheckoutHeaderDto>(body);
-            OrderHeader orderHeader= _mapper.Map<OrderHeader>(checkoutHeaderDto);
-            orderHeader.OrderTime=DateTime.Now;
+            OrderHeader orderHeader = _mapper.Map<OrderHeader>(checkoutHeaderDto);
+            orderHeader.OrderTime = DateTime.Now;
             orderHeader.OrderDetails = new List<OrderDetails>();
             foreach (var detailList in checkoutHeaderDto.CartDetails)
             {
@@ -70,15 +77,34 @@ namespace Food.Services.OrderAPI.Messaging
                 //ProductId = detailList.ProductId,
                 orderDetails.ProductName = detailList.Product.Name;
                 orderDetails.Price = detailList.Product.Price;
-                    //Count = detailList.Count
+                //Count = detailList.Count
                 //};
                 orderHeader.CartTotalItems += detailList.Count;
                 orderHeader.OrderDetails.Add(orderDetails);
             }
-            await _orderRepository.AddOrder(orderHeader);
-            // complete the message
-            await args.CompleteMessageAsync(args.Message);
 
+            PaymentRequestMessage paymentRequestMessage = new()
+            {
+                Name = orderHeader.FirstName + " " + orderHeader.LastName,
+                CardNumber = orderHeader.CardNumber,
+                CVV = orderHeader.CVV,
+                ExpiryMonthYear = orderHeader.ExpiryMonthYear,
+                OrderId = orderHeader.OrderHeaderId,
+                OrderTotal = orderHeader.OrderTotal,
+                Email = orderHeader.Email
+            };
+            try
+            {
+                await _orderRepository.AddOrder(orderHeader);
+                await _messageBus.PublishMessage(paymentRequestMessage, orderPaymentMessageTopic);
+                // complete the message
+                await args.CompleteMessageAsync(args.Message);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception.ToString());
+                throw;
+            }
         }
     }
 }
