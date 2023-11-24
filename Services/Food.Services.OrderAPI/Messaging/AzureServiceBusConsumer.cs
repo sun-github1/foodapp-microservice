@@ -98,20 +98,19 @@ namespace Food.Services.OrderAPI.Messaging
                 orderHeader.CartTotalItems += detailList.Count;
                 orderHeader.OrderDetails.Add(orderDetails);
             }
-
+            var newordr = await _orderRepository.AddOrder(orderHeader);
             PaymentRequestMessage paymentRequestMessage = new()
             {
-                Name = orderHeader.FirstName + " " + orderHeader.LastName,
-                CardNumber = orderHeader.CardNumber,
-                CVV = orderHeader.CVV,
+                Name = newordr.FirstName + " " + newordr.LastName,
+                CardNumber = newordr.CardNumber,
+                CVV = newordr.CVV,
                 ExpiryMonthYear = orderHeader.ExpiryMonthYear,
-                OrderId = orderHeader.OrderHeaderId,
-                OrderTotal = orderHeader.OrderTotal,
-                Email = orderHeader.Email
+                OrderId = newordr.OrderHeaderId,
+                OrderTotal = newordr.OrderTotal,
+                Email = newordr.Email
             };
             try
             {
-                await _orderRepository.AddOrder(orderHeader);
                 await _messageBus.PublishMessage(paymentRequestMessage, orderPaymentMessageTopic);
                 // complete the message
                 await args.CompleteMessageAsync(args.Message);

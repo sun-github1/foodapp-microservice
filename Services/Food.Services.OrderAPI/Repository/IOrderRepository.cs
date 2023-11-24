@@ -4,7 +4,7 @@ namespace Food.Services.OrderAPI.Repository
 {
     public interface IOrderRepository
     {
-        Task<bool> AddOrder(OrderHeader orderHeader);
+        Task<OrderHeader> AddOrder(OrderHeader orderHeader);
         Task UpdateOrderPaymentStatus(int orderHeaderId, bool paid);
     }
 }

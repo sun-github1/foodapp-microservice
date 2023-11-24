@@ -12,12 +12,12 @@ namespace Food.Services.OrderAPI.Repository
         {
             _dbContext = dbContext;
         }
-        public async Task<bool> AddOrder(OrderHeader orderHeader)
+        public async Task<OrderHeader> AddOrder(OrderHeader orderHeader)
         {
             await using var _db = new ApplicationDbContext(_dbContext);
-            _db.OrderHeaders.Add(orderHeader);
+            var neworder = await _db.OrderHeaders.AddAsync(orderHeader);
             await _db.SaveChangesAsync();
-            return true;
+            return neworder.Entity;
         }
 
         public async Task UpdateOrderPaymentStatus(int orderHeaderId, bool paid)
