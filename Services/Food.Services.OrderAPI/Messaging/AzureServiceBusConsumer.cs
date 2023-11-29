@@ -40,7 +40,8 @@ namespace Food.Services.OrderAPI.Messaging
             orderUpdatePaymentMessageTopic = _configuration.GetValue<string>("OrderUpdatePaymentTopic");
 
             var client = new ServiceBusClient(serviceBusConnectionString);
-            checkOutProcessor = client.CreateProcessor(checkoutMessageTopic, subscriptionCheckOut);
+            //checkOutProcessor = client.CreateProcessor(checkoutMessageTopic, subscriptionCheckOut);//topic
+            checkOutProcessor = client.CreateProcessor(checkoutMessageTopic);
             orderUpdatePaymentStatusProcessor = client.CreateProcessor(orderUpdatePaymentMessageTopic, subscriptionCheckOut);
         }
 

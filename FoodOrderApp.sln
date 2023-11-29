@@ -25,9 +25,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Food.Services.OrderAPI", "S
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Payments", "Payments", "{A2350D68-BC5E-4298-824C-28FF07ECF276}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentProcessor", "Payments\PaymentProcessor\PaymentProcessor.csproj", "{96BAD381-97B9-46A9-9870-A22595C5BF67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentProcessor", "Payments\PaymentProcessor\PaymentProcessor.csproj", "{96BAD381-97B9-46A9-9870-A22595C5BF67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Food.Services.PaymentAPI", "Services\Food.Services.PaymentAPI\Food.Services.PaymentAPI.csproj", "{C737333C-F936-411A-9725-E35A6485CF02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Food.Services.PaymentAPI", "Services\Food.Services.PaymentAPI\Food.Services.PaymentAPI.csproj", "{C737333C-F936-411A-9725-E35A6485CF02}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway", "Gateway", "{2D5634A3-FDD8-4EA7-9348-004AFEDE66AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Food.GatewaySolution", "Food.GatewaySolution\Food.GatewaySolution.csproj", "{7762C09A-3F23-4E81-B1A1-2BC77745DD6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Food.Services.Email", "Services\Food.Services.Email\Food.Services.Email.csproj", "{44EA03FE-DC30-4995-8832-5BEBEF0D7A94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +77,14 @@ Global
 		{C737333C-F936-411A-9725-E35A6485CF02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C737333C-F936-411A-9725-E35A6485CF02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C737333C-F936-411A-9725-E35A6485CF02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7762C09A-3F23-4E81-B1A1-2BC77745DD6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7762C09A-3F23-4E81-B1A1-2BC77745DD6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7762C09A-3F23-4E81-B1A1-2BC77745DD6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7762C09A-3F23-4E81-B1A1-2BC77745DD6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44EA03FE-DC30-4995-8832-5BEBEF0D7A94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44EA03FE-DC30-4995-8832-5BEBEF0D7A94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44EA03FE-DC30-4995-8832-5BEBEF0D7A94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44EA03FE-DC30-4995-8832-5BEBEF0D7A94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +99,8 @@ Global
 		{BD4FDEE3-3D0F-4307-A540-6A0BE75797B6} = {09C85D0F-43DA-4929-96B2-F9A7073E964A}
 		{96BAD381-97B9-46A9-9870-A22595C5BF67} = {A2350D68-BC5E-4298-824C-28FF07ECF276}
 		{C737333C-F936-411A-9725-E35A6485CF02} = {09C85D0F-43DA-4929-96B2-F9A7073E964A}
+		{7762C09A-3F23-4E81-B1A1-2BC77745DD6A} = {2D5634A3-FDD8-4EA7-9348-004AFEDE66AF}
+		{44EA03FE-DC30-4995-8832-5BEBEF0D7A94} = {09C85D0F-43DA-4929-96B2-F9A7073E964A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21434BBA-F692-4880-B266-E493DBF0F871}
